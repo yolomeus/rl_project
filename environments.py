@@ -35,6 +35,19 @@ class Expando(Env):
         return sum(all_rewards)
 
 
+class Board:
+    def __init__(self, grid_size):
+        self.grid_size = grid_size
+        self.grid = defaultdict(lambda pos: None)
+
+    def get_piece(self, coordinates):
+        return self.grid[coordinates]
+
+    def place_piece(self, piece, coordinates):
+        assert self.grid[coordinates] is None, 'can only place piece on empty field'
+        self.grid[coordinates] = piece
+
+
 class Building(ABC):
     def __init__(self, player, board):
         self.age = 0
