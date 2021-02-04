@@ -15,18 +15,26 @@ class OneHot(Space):
         if type(shape) not in [tuple, list, np.ndarray]:
             shape = (shape,)
         self.shape = shape
+        self.one_hot_dim = self.shape[-1]
         super().__init__(shape, np.int8)
 
     def sample(self):
         n_one_hots = np.prod(self.shape[:-1])
-        one_hot_dim = self.shape[-1]
         one_hots = self.np_random.multinomial(n=1,
-                                              pvals=[1.0 / one_hot_dim] * one_hot_dim,
+                                              pvals=[1.0 / self.one_hot_dim] * self.one_hot_dim,
                                               size=n_one_hots)
         one_hots = np.reshape(one_hots, self.shape)
         return one_hots
 
     def contains(self, x):
-        # TODO implement
-        same_shape = x.shape == self.shape
-        return same_shape
+        has_same_shape = x.shape == self.shape
+
+        # check if one-hot vectors
+        one_hots = x.reshape(-1, self.one_hot_dim)
+        non_zero_count = np.count_nonzero(one_hots, axis=-1)
+
+        has_single_element = np.all(non_zero_count == 1)
+        sums_to_one = np.all(np.sum(one_hots, axis=-1) == 1)
+        is_one_hot = has_single_element and sums_to_one
+
+        return has_same_shape and is_one_hot
