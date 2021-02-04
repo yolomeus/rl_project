@@ -35,6 +35,17 @@ class Expando(Env):
         return sum(all_rewards)
 
 
+class Building(ABC):
+    def __init__(self, player, board):
+        self.age = 0
+        self.player = player
+        self.board = board
+
+    @abstractmethod
+    def compute_reward(self):
+        pass
+
+
 class Player:
     def __init__(self, player_id):
         self.player_id = player_id
@@ -43,5 +54,5 @@ class Player:
     def act(self, action):
         pass
 
-    def register_building(self, building):
+    def register_building(self, building: Building):
         self.buildings.append(building)
