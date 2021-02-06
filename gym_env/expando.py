@@ -15,9 +15,9 @@ class Expando(Env):
 
     def step(self, actions):
         assert len(actions) == self.game.n_players, 'only one action per player is allowed'
-        rewards = [self.game.take_turn(action) for action in actions]
+        rewards = [self.game.take_turn(action, i) for i, action in enumerate(actions)]
 
-        obs0 = self.game.get_observation(0)
+        obs0 = self.game.get_observation(player_id=0)
         reward_0 = rewards[0]
 
         return obs0, reward_0, self.game.is_done, {}

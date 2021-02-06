@@ -7,9 +7,6 @@ class Player:
         self.buildings = []
         self.board = board
 
-    def act(self, action):
-        pass
-
     def register_building(self, building: Building):
         self.buildings.append(building)
 

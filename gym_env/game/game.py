@@ -9,10 +9,14 @@ class ExpandoGame:
         self.players = [Player(i, self.board) for i in range(n_players)]
         self.n_turns = 0
 
-    def take_turn(self, action):
-        cur_player = self.players[self.n_turns % self.n_players]
-        cur_player.act(action)
+    def take_turn(self, action, player_id):
+        self.execute(action, player_id)
+        reward = self.players[player_id].current_reward
         self.n_turns += 1
+        return reward
+
+    def execute(self, action, player_id):
+        pass
 
     def reset(self):
         self.n_turns = 0
