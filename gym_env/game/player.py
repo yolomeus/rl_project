@@ -57,7 +57,7 @@ class Player:
 
     def get_observation(self):
         # this is where we control observability
-        return self.board.to_binary()
+        return self.board.to_binary(), self.cursor
 
     @property
     def current_reward(self):
