@@ -9,4 +9,16 @@ class Building(ABC):
 
     @abstractmethod
     def compute_reward(self):
-        pass
+        """Compute the reward of the building"""
+
+
+class City(Building):
+    # TODO implement
+    def compute_reward(self):
+        return 0
+
+
+class Farm(Building):
+    # TODO implement
+    def compute_reward(self):
+        return 0

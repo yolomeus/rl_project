@@ -2,12 +2,16 @@ import numpy as np
 from gym import Env
 from gym.spaces import MultiDiscrete, Box, Tuple
 
+from gym_env.game.buildings import Farm, City
 from gym_env.game.game import ExpandoGame
 from spaces import OneHot
 
 
 class Expando(Env):
-    def __init__(self, grid_size: tuple, n_building_types: int = 2, n_players: int = 2):
+    def __init__(self, grid_size: tuple, n_players: int = 2):
+        self.building_types = (Farm, City)
+        n_building_types = len(self.building_types)
+
         # actions: (cursor move direction, building_type), +1 no-op building
         n_directions = 1 + 2 * len(grid_size)
         self.action_space = MultiDiscrete([n_directions, n_building_types + 1])
@@ -18,7 +22,7 @@ class Expando(Env):
         cursor_space = Box(low=0, high=np.array(grid_size), dtype=np.uint)
         self.observation_space = Tuple((grid_space, cursor_space))
 
-        self.game = ExpandoGame(grid_size, n_players)
+        self.game = ExpandoGame(grid_size, n_players, self.building_types)
 
     def step(self, actions):
         assert len(actions) == self.game.n_players, 'only one action per player is allowed'
