@@ -1,17 +1,30 @@
 import numpy as np
+from numpy.random import default_rng
 
 from gym_env.game.board import Board
 from gym_env.game.player import Player
 
 
 class ExpandoGame:
-    def __init__(self, grid_size, n_players, building_types):
+    def __init__(self, grid_size, n_players, building_types, seed=None):
+        self.np_random = default_rng(seed)
         self.grid_size = grid_size
         self.n_dims = len(self.grid_size)
         self.n_players = n_players
         self.board = Board(grid_size, building_types)
         self.players = [Player(i, self.board) for i in range(n_players)]
         self.n_turns = 0
+
+        self._init_player_positions()
+
+    def _init_player_positions(self):
+        cursors = set()
+        while len(cursors) < self.n_players:
+            cursor = tuple(self.np_random.integers(0, self.grid_size))
+            cursors.add(cursor)
+
+        for c, p in zip(cursors, self.players):
+            p.cursor = np.array(c, dtype=np.int64)
 
     def take_turn(self, action, player_id):
         cursor_move, place_action = action
@@ -54,7 +67,7 @@ class ExpandoGame:
         assert action >= 0
         assert 0 <= action <= 2 * self.n_dims, 'we can move in two directions for each axis or not move at all'
 
-        direction = np.zeros((self.n_dims,))
+        direction = np.zeros((self.n_dims,), dtype=np.int64)
         if 0 < action <= self.n_dims:
             # 1 to n_dimensions
             direction[action - 1] += 1
@@ -66,4 +79,5 @@ class ExpandoGame:
         return direction
 
     def _decode_place_action(self, action):
-        return self.n_players
+        # TODO
+        pass

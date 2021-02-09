@@ -2,7 +2,7 @@ from gym_env.expando import Expando
 
 
 def main():
-    env = Expando(grid_size=(3, 4, 8), n_building_types=2)
+    env = Expando(grid_size=(3, 4, 2))
     env.reset()
     for _ in range(10):
         obs = env.observation_space.sample()
