@@ -2,22 +2,22 @@ import numpy as np
 from gym import Env
 from gym.spaces import MultiDiscrete, Box, Tuple
 
-from gym_env.game.buildings import Farm, City
+from gym_env.game.buildings import Farm, City, Empty
 from gym_env.game.game import ExpandoGame
 from spaces import OneHot
 
 
 class Expando(Env):
     def __init__(self, grid_size: tuple, n_players: int = 2):
-        self.building_types = (Farm, City)
+        self.building_types = (Empty, Farm, City)
         n_building_types = len(self.building_types)
 
         # actions: (cursor move direction, building_type), +1 no-op building
         n_directions = 1 + 2 * len(grid_size)
-        self.action_space = MultiDiscrete([n_directions, n_building_types + 1])
+        self.action_space = MultiDiscrete([n_directions, n_building_types])
 
         # observation space: (d_0 x d_1 x ... x d_n x building_type x player)
-        obs_dims = grid_size + ((n_building_types + 1) * n_players,)
+        obs_dims = grid_size + (n_building_types * n_players,)
         grid_space = OneHot(obs_dims)
         cursor_space = Box(low=0, high=np.array(grid_size), dtype=np.uint)
         self.observation_space = Tuple((grid_space, cursor_space))
@@ -32,6 +32,10 @@ class Expando(Env):
         reward_0 = rewards[0]
 
         return obs0, reward_0, self.game.is_done, {}
+
+    def seed(self, seed=None):
+        self.observation_space.seed(seed)
+        self.action_space.seed(seed)
 
     def reset(self):
         self.game.reset()
