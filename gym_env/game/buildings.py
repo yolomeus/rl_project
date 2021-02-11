@@ -12,13 +12,19 @@ class Building(ABC):
         """Compute the reward of the building"""
 
 
+class Empty(Building):
+
+    def compute_reward(self):
+        return 0
+
+
 class City(Building):
     # TODO implement
     def compute_reward(self):
-        return 0
+        return 1
 
 
 class Farm(Building):
     # TODO implement
     def compute_reward(self):
-        return 0
+        return 1
