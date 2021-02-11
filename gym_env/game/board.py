@@ -1,23 +1,37 @@
 from collections import defaultdict
 
-import numpy as np
-
 
 class Board:
-    def __init__(self, grid_size):
+    def __init__(self, grid_size, game):
+        self.game = game
+        self.type_to_id = {t: i for i, t in enumerate(game.building_types)}
         self.grid_size = grid_size
-        self.grid = defaultdict(lambda pos: None)
+        self.grid = None
+        self.reset_grid()
 
     def get_piece(self, coordinates):
         return self.grid[coordinates]
 
     def place_piece(self, piece, coordinates):
+        assert self.is_legal_position(coordinates), 'the coordinates provided are off the grid'
         assert self.grid[coordinates] is None, 'can only place piece on empty field'
         self.grid[coordinates] = piece
 
-    def clear(self):
-        self.grid = defaultdict(lambda pos: None)
+    def reset_grid(self):
+        self.grid = defaultdict(lambda: None)
 
-    def to_binary(self):
-        board = np.zeros(self.grid_size)
-        return board
+    def is_legal_position(self, position):
+        """Check whether position is a legal position on the board.
+
+        :param position: the position to check
+        :return: bool
+        """
+        for i, x in enumerate(position):
+            if x < 0 or x >= self.grid_size[i]:
+                return False
+
+        return True
+
+    def to_one_hot(self):
+        # TODO implement
+        return 0
