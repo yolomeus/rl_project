@@ -3,20 +3,20 @@ from collections import defaultdict
 
 import numpy as np
 
-from gym_env.game.buildings import Empty
+from gym_env.game.pieces import Empty
 
 
 class Board:
     def __init__(self, grid_size, game):
         self.grid_size = grid_size
         self.game = game
-        self.type_to_id = {t: i for i, t in enumerate(game.building_types)}
+        self.type_to_id = {t: i for i, t in enumerate(game.piece_types)}
         # shared empty field
         self.empty_field = Empty(None, self)
         self.grid = None
         self.reset_grid()
 
-        self.one_hot_dim = game.n_players * len(game.building_types)
+        self.one_hot_dim = game.n_players * len(game.piece_types)
         self._one_hots = np.eye(self.one_hot_dim)
 
     def get_piece(self, coordinates):

@@ -27,5 +27,4 @@ class Player:
 
     @property
     def current_reward(self):
-        building_reward = sum([piece.compute_reward() for piece in self.pieces])
-        return building_reward
+        return sum([piece.compute_reward() for piece in self.pieces])

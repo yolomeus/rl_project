@@ -4,15 +4,15 @@ import numpy as np
 from numpy.random import default_rng
 
 from gym_env.game.board import Board
-from gym_env.game.buildings import Empty
+from gym_env.game.pieces import Empty
 from gym_env.game.player import Player
 
 
 class ExpandoGame:
-    def __init__(self, grid_size, n_players, building_types, seed=None):
+    def __init__(self, grid_size, n_players, piece_types, seed=None):
         self.np_random = default_rng(seed)
 
-        self.building_types = building_types
+        self.piece_types = piece_types
         self.grid_size = grid_size
         self.n_dims = len(grid_size)
 
@@ -36,12 +36,12 @@ class ExpandoGame:
     def take_turn(self, action, player_id):
         cursor_move, place_action = action
         move_direction: np.ndarray = self._decode_action(cursor_move, 'cursor_move')
-        building_type: ABCMeta = self._decode_action(place_action, 'place_action')
+        piece_type: ABCMeta = self._decode_action(place_action, 'place_action')
 
         cur_player = self.players[player_id]
         cur_player.move_cursor(move_direction)
-        if not building_type == Empty:
-            cur_player.place_piece(building_type(cur_player, self.board))
+        if not piece_type == Empty:
+            cur_player.place_piece(piece_type(cur_player, self.board))
 
         reward = self.players[player_id].current_reward
         self.n_turns += 1
@@ -89,5 +89,5 @@ class ExpandoGame:
         return direction
 
     def _decode_place_action(self, action):
-        building_type = self.building_types[action]
-        return building_type
+        piece_type = self.piece_types[action]
+        return piece_type
