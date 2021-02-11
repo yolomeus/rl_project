@@ -8,12 +8,15 @@ from gym_env.game.player import Player
 class ExpandoGame:
     def __init__(self, grid_size, n_players, building_types, seed=None):
         self.np_random = default_rng(seed)
+
+        self.building_types = building_types
         self.grid_size = grid_size
         self.n_dims = len(self.grid_size)
         self.n_players = n_players
-        self.board = Board(grid_size, building_types)
-        self.players = [Player(i, self.board) for i in range(n_players)]
         self.n_turns = 0
+
+        self.board = Board(grid_size, self)
+        self.players = [Player(i, self.board) for i in range(n_players)]
 
         self._init_player_positions()
 
@@ -29,9 +32,11 @@ class ExpandoGame:
     def take_turn(self, action, player_id):
         cursor_move, place_action = action
         move_direction = self._decode_action(cursor_move, 'cursor_move')
-        place_action = self._decode_action(cursor_move, 'place_action')
+        building_type = self._decode_action(place_action, 'place_action')
 
-        self.players[player_id].move_cursor(move_direction)
+        cur_player = self.players[player_id]
+        cur_player.move_cursor(move_direction)
+        cur_player.place_piece(building_type(cur_player, self.board))
 
         reward = self.players[player_id].current_reward
         self.n_turns += 1
@@ -79,5 +84,5 @@ class ExpandoGame:
         return direction
 
     def _decode_place_action(self, action):
-        # TODO
-        pass
+        building_type = self.building_types[action]
+        return building_type

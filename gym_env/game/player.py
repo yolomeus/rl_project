@@ -1,7 +1,5 @@
 import numpy as np
 
-from gym_env.game.buildings import Building
-
 
 class Player:
     def __init__(self, player_id, board):
@@ -11,7 +9,7 @@ class Player:
         :param board:
         """
         self.player_id = player_id
-        self.buildings = []
+        self.pieces = []
         self.board = board
         self.cursor = np.zeros(len(self.board.grid_size))
 
@@ -19,8 +17,9 @@ class Player:
         if self.board.is_legal_position(self.cursor + direction):
             self.cursor += direction
 
-    def register_building(self, building: Building):
-        self.buildings.append(building)
+    def place_piece(self, piece):
+        self.pieces.append(piece)
+        self.board.place_piece(piece, tuple(self.cursor))
 
     def get_observation(self):
         # this is where we control observability
@@ -28,5 +27,5 @@ class Player:
 
     @property
     def current_reward(self):
-        building_reward = sum([building.compute_reward() for building in self.buildings])
+        building_reward = sum([piece.compute_reward() for piece in self.pieces])
         return building_reward
