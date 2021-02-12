@@ -32,8 +32,18 @@ class Player:
             self.cursor += direction
 
     def place_piece(self, piece):
-        self.pieces.append(piece)
-        self.board.place_piece(piece, tuple(self.cursor))
+        """Place a piece on the board at the current cursor position of the player.
+
+        :param piece: the piece to place.
+        :return: whether the placing the piece was a success, i.e. the move was valid.
+        :rtype: bool
+        """
+        piece.position = self.cursor.copy()
+        success = self.board.place_piece(piece, tuple(self.cursor))
+        if success:
+            self.pieces.append(piece)
+            piece.at_placement()
+        return success
 
     def get_observation(self):
         # this is where we control observability
