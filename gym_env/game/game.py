@@ -68,8 +68,8 @@ class ExpandoGame:
 
     def _decode_cursor_move(self, action: int):
         """Take an integer and return the corresponding direction vector for moving the cursor. The integer encoding
-        for a cursor move is within range [0, 2*n_dims] where 0 means no change in direction, 1 <= k <= n_dims means +1
-        along the k-th dimension and n_dims+1 <= i <= 2*n_dims means -1 along the (i-n_dims)-th dimension.
+        for a cursor move is within range [0, 2*n_dims] where 0 means no change in direction, 1 <= k <= n_dims means
+        +1 along the k-th dimension and n_dims+1 <= i <= 2*n_dims means -1 along the (i-n_dims)-th dimension.
 
         :param action: integer representing cursor move
         :return: direction vector to move to as a numpy array
@@ -88,6 +88,11 @@ class ExpandoGame:
 
         return direction
 
-    def _decode_place_action(self, action):
+    def _decode_piece_type(self, action):
+        """Decode the correct piece type from an integer id.
+
+        :param action: integer id representing a piece type
+        :return: a class object for the correct type of piece
+        """
         piece_type = self.piece_types[action]
         return piece_type
