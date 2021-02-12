@@ -44,6 +44,11 @@ class ExpandoGame:
             cur_player.place_piece(piece_type(cur_player, self.board))
 
         reward = self.players[player_id].current_reward
+
+        # increase  counters
+        for piece in self.all_pieces:
+            piece.age += 1
+
         self.n_turns += 1
         return reward
 
@@ -57,6 +62,13 @@ class ExpandoGame:
     @property
     def is_done(self):
         return False
+
+    @property
+    def all_pieces(self):
+        all_pieces = []
+        for player in self.players:
+            all_pieces.extend(player.pieces)
+        return all_pieces
 
     def _decode_action(self, action, action_type):
         if action_type == 'cursor_move':
