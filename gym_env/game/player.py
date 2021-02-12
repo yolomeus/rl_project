@@ -13,6 +13,20 @@ class Player:
         self.board = board
         self.cursor = np.zeros(len(self.board.grid_size))
 
+        # game stats
+        self.room = 0
+        self.population = 0
+
+    def __str__(self):
+        player_id = f'Player {self.player_id}'
+        population_info = f'population/room: {self.population}/{self.room}'
+        happiness = f'happiness penalty: {self.happiness_penalty}'
+        turn_reward = f'current turn reward: {self.current_reward}'
+
+        sep = "-" * 50
+
+        return '\n'.join([sep, player_id, population_info, happiness, turn_reward, sep])
+
     def move_cursor(self, direction):
         if self.board.is_legal_position(self.cursor + direction):
             self.cursor += direction
