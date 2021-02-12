@@ -2,11 +2,15 @@ import numpy as np
 
 
 class Player:
+    """A Player can have a list of associated pieces, set on a board. To set pieces, the player has a cursor that can
+    be moved and indicates where to place a piece.
+    """
+
     def __init__(self, player_id, board):
         """
 
-        :param player_id:
-        :param board:
+        :param player_id: integer identifying the player
+        :param board: board object that the player interacts with
         """
         self.player_id = player_id
         self.pieces = []
@@ -28,7 +32,11 @@ class Player:
         return '\n'.join([sep, player_id, population_info, happiness, turn_reward, sep])
 
     def move_cursor(self, direction):
-        if self.board.is_legal_position(self.cursor + direction):
+        """Move the player's cursor by adding a direction vector.
+
+        :param direction: an offset vector that is added to the current cursor position if it describes a legal move.
+        """
+        if self.board.is_within_grid(self.cursor + direction):
             self.cursor += direction
 
     def place_piece(self, piece):
