@@ -36,7 +36,7 @@ class ExpandoGame:
     def take_turn(self, action, player_id):
         cursor_move, place_action = action
         move_direction: np.ndarray = self._decode_action(cursor_move, 'cursor_move')
-        piece_type: ABCMeta = self._decode_action(place_action, 'place_action')
+        piece_type: ABCMeta = self._decode_action(place_action, 'piece_type')
 
         cur_player = self.players[player_id]
         cur_player.move_cursor(move_direction)
@@ -61,8 +61,8 @@ class ExpandoGame:
     def _decode_action(self, action, action_type):
         if action_type == 'cursor_move':
             return self._decode_cursor_move(action)
-        elif action_type == 'place_action':
-            return self._decode_place_action(action)
+        elif action_type == 'piece_type':
+            return self._decode_piece_type(action)
         else:
             raise NotImplementedError()
 
