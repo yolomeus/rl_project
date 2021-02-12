@@ -20,17 +20,30 @@ class Board:
         self._one_hots = np.eye(self.one_hot_dim)
 
     def get_piece(self, coordinates):
+        """Get the piece at the specified coordinates.
+
+        :param coordinates: coordinate vector to access the board at.
+        :return: piece or Empty piece.
+        """
         return self.grid[coordinates]
 
     def place_piece(self, piece, coordinates):
-        assert self.is_legal_position(coordinates), 'the coordinates provided are off the grid'
-        # assert self.grid[coordinates] is self.empty_field, 'can only place piece on empty field'
-        self.grid[coordinates] = piece
+        """Place a piece on the board at given coordinates.
+
+        :param piece: the piece to place.
+        :param coordinates: coordinate vector for where to place the piece.
+        :return: whether the placing was a success or not
+        :rtype: bool
+        """
+        if self.is_within_grid(coordinates) and not self.is_occupied(coordinates):
+            self.grid[coordinates] = piece
+            return True
+        return False
 
     def reset_grid(self):
         self.grid = defaultdict(lambda: self.empty_field)
 
-    def is_legal_position(self, position):
+    def is_within_grid(self, position):
         """Check whether position is a legal position on the board.
 
         :param position: the position to check
@@ -41,6 +54,9 @@ class Board:
                 return False
 
         return True
+
+    def is_occupied(self, position):
+        return self.grid[position] is not self.empty_field
 
     def piece_to_one_hot(self, piece):
         return self._one_hots[self.type_to_id[type(piece)]]
