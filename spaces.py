@@ -1,8 +1,8 @@
 import numpy as np
-from gym import Space
+from gym.spaces import MultiBinary
 
 
-class OneHot(Space):
+class OneHot(MultiBinary):
     """n-dimensional space of one-hot vectors e.g. with shape (2, 3, 6), from which a sample is a tensor
     containing 2 x 3 six-dimensional one-hot vectors.
     """
@@ -12,11 +12,9 @@ class OneHot(Space):
 
         :param shape: shape of the space, where the last dimension corresponds to the one-hot encoding's size.
         """
-        if type(shape) not in [tuple, list, np.ndarray]:
-            shape = (shape,)
+        super().__init__(shape)
         self.shape = shape
         self.one_hot_dim = self.shape[-1]
-        super().__init__(shape, np.int8)
 
     def sample(self):
         n_one_hots = np.prod(self.shape[:-1])
