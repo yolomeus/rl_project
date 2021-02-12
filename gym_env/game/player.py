@@ -40,5 +40,14 @@ class Player:
         return self.board.to_one_hot(), self.cursor
 
     @property
+    def happiness_penalty(self):
+        """Compute the happiness penalty which is added to the reward.
+
+        :return: negative scalar or 0 which is the happiness penalty.
+        """
+        return min(self.room - self.population, 0)
+
+    @property
     def current_reward(self):
-        return sum([piece.compute_reward() for piece in self.pieces])
+        turn_rewards = sum([piece.turn_reward() for piece in self.pieces])
+        return turn_rewards + self.happiness_penalty
