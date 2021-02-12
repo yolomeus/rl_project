@@ -2,13 +2,14 @@ import numpy as np
 from gym import Env
 from gym.spaces import MultiDiscrete, Box, Tuple
 
-from gym_env.game.pieces import Farm, City, Empty
 from gym_env.game.game import ExpandoGame
+from gym_env.game.pieces import Farm, City, Empty
 from spaces import OneHot
 
 
 class Expando(Env):
-    def __init__(self, grid_size: tuple, n_players: int = 2):
+    def __init__(self, grid_size: tuple, n_players: int = 2, observe_all=False):
+        self.observe_all = observe_all
         self.piece_types = (Empty, Farm, City)
         n_piece_types = len(self.piece_types)
 
@@ -31,8 +32,11 @@ class Expando(Env):
 
         obs0 = self.game.get_observation(player_id=0)
         reward_0 = rewards[0]
-
-        return obs0, reward_0, self.game.is_done, {}
+        info = {}
+        if self.observe_all:
+            other_obs = [self.game.get_observation(i) for i in range(1, len(actions))]
+            info = {'rewards_other': rewards[1:], 'obs_other': other_obs}
+        return obs0, reward_0, self.game.is_done, info
 
     def seed(self, seed=None):
         self.observation_space.seed(seed)
