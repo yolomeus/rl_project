@@ -20,16 +20,18 @@ class Player:
         # game stats
         self.room = 0
         self.population = 0
+        self.total_reward = 0
 
     def __str__(self):
         player_id = f'Player {self.player_id}'
         population_info = f'population/room: {self.population}/{self.room}'
         happiness = f'happiness penalty: {self.happiness_penalty}'
         turn_reward = f'current turn reward: {self.current_reward}'
+        total_reward = f'current total reward: {self.total_reward}'
 
         sep = "-" * 50
 
-        return '\n'.join([sep, player_id, population_info, happiness, turn_reward, sep])
+        return '\n'.join([sep, player_id, population_info, happiness, turn_reward, total_reward, sep])
 
     def move_cursor(self, direction):
         """Move the player's cursor by adding a direction vector.
