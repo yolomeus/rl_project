@@ -16,6 +16,7 @@ class ExpandoGame:
         self.grid_size = grid_size
         self.n_dims = len(grid_size)
 
+        self.final_reward = final_reward
         self.n_players = n_players
         self.n_turns = 0
 
@@ -44,12 +45,21 @@ class ExpandoGame:
             cur_player.place_piece(piece_type(cur_player, self.board))
 
         reward = self.players[player_id].current_reward
+        self.players[player_id].total_reward += reward
 
         # increase  counters
         for piece in self.all_pieces:
             piece.age += 1
-
         self.n_turns += 1
+
+        if self.is_done:
+            other_players = [self.players[i] for i in range(len(self.players)) if i != player_id]
+            if all([cur_player.total_reward > p.total_reward for p in other_players]):
+                # player has won
+                reward += self.final_reward
+            else:
+                # player did loose
+                reward -= self.final_reward
         return reward
 
     def reset(self):
