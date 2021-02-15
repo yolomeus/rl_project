@@ -25,7 +25,9 @@ class Board:
         :param coordinates: coordinate vector to access the board at.
         :return: piece or Empty piece.
         """
-        return self.grid[coordinates]
+        if self.is_within_grid(coordinates):
+            return self.grid[coordinates]
+        return self.empty_field
 
     def place_piece(self, piece, coordinates):
         """Place a piece on the board at given coordinates.
