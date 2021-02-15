@@ -20,9 +20,7 @@ class Expando(Env):
 
         # observation space: (d_0 x d_1 x ... x d_n x piece_type x player)
         obs_dims = grid_size + (n_piece_types * n_players,)
-        grid_space = OneHot(obs_dims)
-        cursor_space = Box(low=0, high=np.array(grid_size), dtype=np.uint)
-        self.observation_space = Tuple((grid_space, cursor_space))
+        self.observation_space = OneHotBox(OneHot(obs_dims), Box(0.0, 1.0, shape=(4,)), flatten=True)
 
         self.game = ExpandoGame(grid_size, n_players, max_turns, self.piece_types, final_reward=100)
 
@@ -30,11 +28,11 @@ class Expando(Env):
         assert len(actions) == self.game.n_players, 'only one action per player is allowed'
         rewards = [self.game.take_turn(action, i) for i, action in enumerate(actions)]
 
-        obs0 = self.game.get_observation(player_id=0)
+        obs0 = self.game.get_observation(player_id=0, formatting='flat')
         reward_0 = rewards[0]
         info = {}
         if self.observe_all:
-            other_obs = [self.game.get_observation(i) for i in range(1, len(actions))]
+            other_obs = [self.game.get_observation(i, 'flat') for i in range(1, len(actions))]
             info = {'rewards_other': rewards[1:], 'obs_other': other_obs}
         return obs0, reward_0, self.game.is_done, info
 

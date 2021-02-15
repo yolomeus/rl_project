@@ -77,8 +77,14 @@ class ExpandoGame:
         self.players = [Player(i, self.board) for i in range(self.n_players)]
         self._init_player_positions()
 
-    def get_observation(self, player_id):
-        return self.players[player_id].get_observation()
+    def get_observation(self, player_id, formatting):
+        """
+
+        :param player_id:
+        :param formatting: 'flat' or 'grid'
+        :return:
+        """
+        return self.players[player_id].get_observation(formatting)
 
     @property
     def is_done(self):
