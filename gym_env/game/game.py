@@ -9,7 +9,15 @@ from gym_env.game.player import Player
 
 
 class ExpandoGame:
-    def __init__(self, grid_size, n_players, piece_types, seed=None):
+    def __init__(self, grid_size, n_players, max_turns, piece_types, final_reward, seed=None):
+        """
+
+        :param grid_size:
+        :param n_players:
+        :param max_turns:
+        :param piece_types:
+        :param seed:
+        """
         self.np_random = default_rng(seed)
 
         self.piece_types = piece_types
@@ -18,6 +26,7 @@ class ExpandoGame:
 
         self.final_reward = final_reward
         self.n_players = n_players
+        self.max_turns = max_turns
         self.n_turns = 0
 
         self.board = Board(grid_size, self)
@@ -73,7 +82,7 @@ class ExpandoGame:
 
     @property
     def is_done(self):
-        return False
+        return self.board.is_full() or self.n_turns > self.max_turns
 
     @property
     def all_pieces(self):

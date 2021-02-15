@@ -8,7 +8,7 @@ from spaces import OneHot
 
 
 class Expando(Env):
-    def __init__(self, grid_size: tuple, n_players: int = 2, observe_all=False):
+    def __init__(self, grid_size: tuple, n_players: int = 2, max_turns=100, observe_all=False):
         self.observe_all = observe_all
         self.piece_types = (Empty, Farm, City)
         n_piece_types = len(self.piece_types)
@@ -24,7 +24,7 @@ class Expando(Env):
         cursor_space = Box(low=0, high=np.array(grid_size), dtype=np.uint)
         self.observation_space = Tuple((grid_space, cursor_space))
 
-        self.game = ExpandoGame(grid_size, n_players, self.piece_types)
+        self.game = ExpandoGame(grid_size, n_players, max_turns, self.piece_types, final_reward=100)
 
     def step(self, actions):
         assert len(actions) == self.game.n_players, 'only one action per player is allowed'
