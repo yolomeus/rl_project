@@ -53,9 +53,35 @@ class Player:
             piece.at_placement()
         return success
 
-    def get_observation(self):
+    def get_observation(self, formatting):
+        """
+
+        :param formatting: 'flat' or 'grid'
+        :return:
+        """
+        if formatting == 'grid':
+            return self.get_grid_observation()
+        elif formatting == 'flat':
+            return self.get_flat_observation()
+
+    def get_grid_observation(self):
+        cursor_bit = np.zeros(self.board.grid_size + (1,))
+        cursor_bit[tuple(self.cursor)] = 1
         # this is where we control observability
-        return self.board.to_one_hot(), self.cursor
+        obs = np.concatenate([self.board.to_one_hot()], axis=-1)
+        return obs
+
+    def get_flat_observation(self):
+        grid = self.board.to_one_hot().ravel()
+        cursor_normalized = self.cursor / np.array(self.board.grid_size)
+
+        n_grid = np.prod(self.board.grid_size)
+        population_normalized = np.array([self.population / n_grid])
+        room_normalized = np.array([self.room / n_grid])
+
+        obs = np.concatenate([grid, cursor_normalized, population_normalized, room_normalized])
+
+        return obs
 
     @property
     def happiness_penalty(self):
