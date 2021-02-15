@@ -55,6 +55,8 @@ class ExpandoGame:
     def reset(self):
         self.n_turns = 0
         self.board.reset_grid()
+        self.players = [Player(i, self.board) for i in range(self.n_players)]
+        self._init_player_positions()
 
     def get_observation(self, player_id):
         return self.players[player_id].get_observation()
