@@ -34,7 +34,13 @@ class Expando(Env):
         if self.observe_all:
             other_obs = [self.game.get_observation(i, 'flat') for i in range(1, len(actions))]
             info = {'rewards_other': rewards[1:], 'obs_other': other_obs}
-        return obs0, reward_0, self.game.is_done, info
+
+        done = self.game.is_done
+
+        if done:
+            self.game.reset()
+
+        return obs0, reward_0, done, info
 
     def seed(self, seed=None):
         self.observation_space.seed(seed)
