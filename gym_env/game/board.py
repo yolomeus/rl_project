@@ -42,6 +42,10 @@ class Board:
             return True
         return False
 
+    @property
+    def all_positions(self):
+        return itertools.product(*(range(x) for x in self.grid_size))
+
     def reset_grid(self):
         self.grid = defaultdict(lambda: self.empty_field)
 
@@ -65,8 +69,10 @@ class Board:
 
     def to_one_hot(self):
         one_hot_grid = np.zeros((*self.grid_size, self.one_hot_dim))
-        ranges = (range(x) for x in self.grid_size)
-        for vec in itertools.product(*ranges):
+        for vec in self.all_positions:
             one_hot_grid[vec] = self.piece_to_one_hot(self.grid[vec])
 
         return one_hot_grid
+
+    def is_full(self):
+        return all([self.is_occupied(pos) for pos in self.all_positions])
