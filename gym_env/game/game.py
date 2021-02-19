@@ -1,3 +1,4 @@
+import itertools
 from abc import ABCMeta
 
 import numpy as np
@@ -33,6 +34,7 @@ class ExpandoGame:
         self.players = [Player(i, self.board) for i in range(n_players)]
 
         self._init_player_positions()
+        self._action_pairs = None
 
     def _init_player_positions(self):
         cursors = set()
@@ -44,6 +46,9 @@ class ExpandoGame:
             p.cursor = np.array(c, dtype=np.int64)
 
     def take_turn(self, action, player_id):
+        if not isinstance(action, list):
+            action = self._discrete_to_multidiscrete(action)
+
         cursor_move, place_action = action
         move_direction: np.ndarray = self._decode_action(cursor_move, 'cursor_move')
         piece_type: ABCMeta = self._decode_action(place_action, 'piece_type')
@@ -135,3 +140,17 @@ class ExpandoGame:
         """
         piece_type = self.piece_types[action]
         return piece_type
+
+    def _discrete_to_multidiscrete(self, action):
+        """Transform a discrete action into a multidiscrete action by looking up a corresponding action pair.
+
+        :param action: integer representing a multidiscrete action.
+        :return: a pair of integers, each representing an action.
+        """
+        if self._action_pairs is None:
+            move_directions = range(2 * self.n_dims + 1)
+            piece_types = range(len(self.piece_types))
+
+            self._action_pairs = [(a_0, a_1) for a_0, a_1 in itertools.product(move_directions, piece_types)]
+
+        return self._action_pairs[action]

@@ -1,13 +1,23 @@
 from gym import Env
-from gym.spaces import MultiDiscrete, Box
+from gym.spaces import MultiDiscrete, Box, Discrete
 
 from gym_env.game.game import ExpandoGame
 from gym_env.game.pieces import Farm, City, Empty
+from gym_env.rendering import GameRenderer
 from spaces import OneHot, OneHotBox
 
 
 class Expando(Env):
-    def __init__(self, grid_size: tuple, n_players: int = 2, max_turns=100, observe_all=False):
+    def __init__(self,
+                 grid_size: tuple,
+                 n_players: int = 2,
+                 max_turns=100,
+                 observe_all=False,
+                 multi_discrete_actions=False,
+                 render=False,
+                 cell_size=40,
+                 padding=5,
+                 ui_font_size=14):
         self.n_players = n_players
         self.observe_all = observe_all
         self.piece_types = (Empty, Farm, City)
@@ -16,7 +26,10 @@ class Expando(Env):
         # actions: (cursor move direction, piece_type)
         # where (cursor move direction) encodes +1 or -1 movement along an axis and 0 for no movement.
         n_move_directions = 1 + 2 * len(grid_size)
-        self.action_space = MultiDiscrete([n_move_directions, n_piece_types])
+        if multi_discrete_actions:
+            self.action_space = MultiDiscrete([n_move_directions, n_piece_types])
+        else:
+            self.action_space = Discrete(n_move_directions * n_piece_types)
 
         # observation space:
         # (d_0 * ... * d_n * piece_type * player
@@ -25,6 +38,10 @@ class Expando(Env):
         self.observation_space = OneHotBox(OneHot(obs_dims), Box(0.0, 1.0, shape=(4,)), flatten=True)
 
         self.game = ExpandoGame(grid_size, n_players, max_turns, self.piece_types, final_reward=100)
+
+        self.do_render = render
+        if self.do_render:
+            self.renderer = GameRenderer(self.game, cell_size, padding, ui_font_size)
 
     def step(self, action, other_actions=None):
         """Perform each player's turn.
@@ -65,4 +82,5 @@ class Expando(Env):
         return self.game.get_observation(0, 'flat')
 
     def render(self, mode='human'):
-        pass
+        if self.do_render:
+            self.renderer.step()
