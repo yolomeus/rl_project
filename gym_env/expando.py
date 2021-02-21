@@ -14,8 +14,9 @@ class Expando(Env):
                  max_turns=100,
                  observe_all=False,
                  multi_discrete_actions=False,
+                 flat_observations=False,
                  render=False,
-                 cell_size=40,
+                 cell_size=50,
                  padding=5,
                  ui_font_size=14):
         self.n_players = n_players
@@ -34,11 +35,14 @@ class Expando(Env):
         # observation space:
         # (d_0 * ... * d_n * piece_type * player
         # + cursor_d_0 + ... + cursor_d_n + population + room)
-        obs_dims = grid_size + (n_piece_types * n_players,)
-        self.observation_space = OneHotBox(OneHot(obs_dims), Box(0.0, 1.0, shape=(4,)), flatten=True)
+        k_cursor_features = 2 if flat_observations else 1
+        obs_dims = grid_size + (1 + (n_piece_types - 1) * n_players,)
+        self.observation_space = OneHotBox(OneHot(obs_dims),
+                                           Box(0.0, 1.0, shape=(2 + k_cursor_features,)),
+                                           flatten=flat_observations)
 
         self.game = ExpandoGame(grid_size, n_players, max_turns, self.piece_types, final_reward=100)
-
+        self.observation_format = 'flat' if flat_observations else 'grid'
         self.do_render = render
         if self.do_render:
             self.renderer = GameRenderer(self.game, cell_size, padding, ui_font_size)
