@@ -16,7 +16,8 @@ class Board:
         self.grid = None
         self.reset_grid()
 
-        self.one_hot_dim = game.n_players * len(game.piece_types)
+        self.one_hot_dim = 1 + game.n_players * (len(game.piece_types) - 1)
+        self._n_piece_types = len(self.type_to_id) - 1
         self._one_hots = np.eye(self.one_hot_dim)
 
     def get_piece(self, coordinates):
@@ -64,13 +65,39 @@ class Board:
     def is_occupied(self, position):
         return self.grid[position] is not self.empty_field
 
-    def piece_to_one_hot(self, piece):
-        return self._one_hots[self.type_to_id[type(piece)]]
+    def piece_to_one_hot(self, piece, observing_player_id):
+        piece_type_id = self.type_to_id[type(piece)]
+        # empty piece doesn't belong to a player
+        if piece == self.empty_field:
+            return self._one_hots[0]
 
-    def to_one_hot(self):
+        piece_player_id = piece.player.player_id
+        # swap player 0 and observing player
+        if observing_player_id != 0:
+            if piece_player_id == 0:
+                player_id = observing_player_id
+            elif observing_player_id == piece_player_id:
+                player_id = 0
+            else:
+                player_id = piece_player_id
+        else:
+            player_id = piece_player_id
+
+        # lookup one-hot
+        one_hot_id = piece_type_id + self._n_piece_types * player_id
+        assert one_hot_id != 0
+        return self._one_hots[one_hot_id]
+
+    def to_one_hot(self, observing_player_id=0):
+        """
+
+        :param observing_player_id: id of the player that observes. This player's pieces will be encoded as if
+        the player was player 0.
+        :return: one-hot encoding of the board from observing player's perspective.
+        """
         one_hot_grid = np.zeros((*self.grid_size, self.one_hot_dim))
         for vec in self.all_positions:
-            one_hot_grid[vec] = self.piece_to_one_hot(self.grid[vec])
+            one_hot_grid[vec] = self.piece_to_one_hot(self.grid[vec], observing_player_id)
 
         return one_hot_grid
 
