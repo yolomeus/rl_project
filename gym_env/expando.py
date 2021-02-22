@@ -81,9 +81,16 @@ class Expando(Env):
         self.observation_space.seed(seed)
         self.action_space.seed(seed)
 
-    def reset(self):
+    def reset(self, player_id=0):
+        """
+
+        :param player_id: id of the player to get the first observation from.
+        :return:
+        """
         self.game.reset()
-        return self.game.get_observation(0, 'flat')
+        if self.observe_all:
+            return [self.game.get_observation(i, self.observation_format) for i in range(self.n_players)]
+        return self.game.get_observation(0, self.observation_format)
 
     def render(self, mode='human'):
         if self.do_render:
