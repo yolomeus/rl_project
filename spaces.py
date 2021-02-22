@@ -71,9 +71,9 @@ class OneHotBox(Box):
         n_one_hot = self.one_hot.one_hot_dim
 
         if not self.flatten:
-            one_hot_obs = x[:, :n_one_hot].reshape(self.one_hot.n)
-            x = x.reshape((-1, self.shape[-1]))
-            box_obs = x[0, n_one_hot:]
+            one_hots = x.reshape(-1, x.shape[-1])
+            one_hot_obs, box_obs = one_hots[:, :n_one_hot], one_hots[0, n_one_hot:]
+            one_hot_obs = one_hot_obs.reshape(self.one_hot.n)
         else:
             len_flat_box = self.flat_box.shape[0]
             one_hot_obs = x[:-len_flat_box].reshape(self.one_hot.n)
