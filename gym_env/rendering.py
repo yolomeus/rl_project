@@ -92,12 +92,13 @@ class GameRenderer(Window):
     def draw_scores(self):
         batch = Batch()
         labels = []
-        header = ['pl', 'population/room', 'happiness', 'turn reward', 'total reward']
+        header = ['pl', 'population', 'room', 'happiness', 'turn reward', 'total reward']
         sep = ' | '
         score_strings = [sep + sep.join(header) + sep]
         for player in self.game.players:
-            scores = map(str, [player.player_id, f'{player.population}/{player.room}', player.happiness_penalty,
-                               player.current_reward, player.total_reward])
+            scores = map(lambda x: str(round(x, 3)),
+                         [player.player_id, player.population, player.room, player.happiness_penalty,
+                          player.current_reward, player.total_reward])
             line = ''
             for i, score in enumerate(scores):
                 score_len = len(str(score))
