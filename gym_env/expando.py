@@ -12,6 +12,7 @@ class Expando(Env):
                  grid_size: tuple,
                  n_players: int = 2,
                  max_turns=100,
+                 policies_other=None,
                  observe_all=False,
                  multi_discrete_actions=False,
                  flat_observations=False,
@@ -19,7 +20,11 @@ class Expando(Env):
                  cell_size=50,
                  padding=5,
                  ui_font_size=14):
+
+        if policies_other is not None:
+            assert n_players - 1 == len(policies_other), 'please provide a policy for each opponent.'
         self.n_players = n_players
+        self.policies_other = policies_other
         self.observe_all = observe_all
         self.piece_types = (Empty, Farm, City)
         n_piece_types = len(self.piece_types)
@@ -55,21 +60,29 @@ class Expando(Env):
         if not provided.
         :return: obs_0, reward_0, done, info
         """
+        if self.policies_other is not None:
+            assert other_actions is None, 'other actions are already defined by the policies passed at initialization'
 
-        reward_0 = self.game.take_turn(action, player_id=0)
+        # other player actions passed as argument
         if other_actions is not None:
             assert len(other_actions) + 1 == self.n_players, 'please provide an action for each player'
             rewards_other = [self.game.take_turn(action, i) for i, action in enumerate(other_actions, start=1)]
-
+        # other player actions defined by policies passed to constructor
+        elif self.policies_other is not None:
+            other_obs = [self.game.get_observation(i, self.observation_format) for i in range(1, self.n_players)]
+            actions_other = [policy.predict(obs)[0][0] for obs, policy in zip(other_obs, self.policies_other)]
+            rewards_other = [self.game.take_turn(a, i) for i, a in enumerate(actions_other, start=1)]
+        # no other player actions provided: sample
         else:
             rewards_other = [self.game.take_turn(self.action_space.sample(), i) for i in range(1, self.n_players)]
 
-        obs_0 = self.game.get_observation(player_id=0, formatting='flat')
         info = {}
         if self.observe_all:
-            other_obs = [self.game.get_observation(i, 'flat') for i in range(1, self.n_players)]
-            info = {'rewards_other': rewards_other, 'obs_other': other_obs}
+            other_obs_new = [self.game.get_observation(i, self.observation_format) for i in range(1, self.n_players)]
+            info = {'rewards_other': rewards_other, 'obs_other': other_obs_new}
 
+        reward_0 = self.game.take_turn(action, player_id=0)
+        obs_0 = self.game.get_observation(player_id=0, formatting=self.observation_format)
         done = self.game.is_done
 
         if done:
