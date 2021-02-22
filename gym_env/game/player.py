@@ -69,8 +69,17 @@ class Player:
     def get_grid_observation(self):
         cursor_bit = np.zeros(self.board.grid_size + (1,))
         cursor_bit[tuple(self.cursor)] = 1
-        # this is where we control observability
-        obs = np.concatenate([self.board.to_one_hot()], axis=-1)
+
+        n_grid = np.prod(self.board.grid_size)
+        population_normalized = np.full(cursor_bit.shape, self.population / n_grid)
+        room_normalized = np.full(cursor_bit.shape, self.room / n_grid)
+
+        obs = np.concatenate([
+            self.board.to_one_hot(self.player_id),
+            cursor_bit,
+            population_normalized,
+            room_normalized
+        ], axis=-1)
         return obs
 
     def get_flat_observation(self):
