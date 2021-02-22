@@ -74,7 +74,7 @@ class Player:
         return obs
 
     def get_flat_observation(self):
-        grid = self.board.to_one_hot().ravel()
+        grid = self.board.to_one_hot(self.player_id).ravel()
         cursor_normalized = self.cursor / np.array(self.board.grid_size)
 
         n_grid = np.prod(self.board.grid_size)
@@ -82,7 +82,8 @@ class Player:
         room_normalized = np.array([self.room / n_grid])
 
         obs = np.concatenate([grid, cursor_normalized, population_normalized, room_normalized])
-
+        # stable baseline policies expect a batch dimension
+        obs = obs.reshape(1, -1)
         return obs
 
     @property
