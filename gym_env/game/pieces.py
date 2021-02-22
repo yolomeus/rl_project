@@ -72,36 +72,58 @@ class City(Piece):
 
 
 class Farm(Piece):
-    reward_size = 1
+    reward_size = 0.1
     reward_delay = 0
+    # whether to ignore adjacent cities that are diagonal w.r.t self
+    ignore_diagonal = True
 
-    def __init__(self, player, board, ignore_diagonal=True):
+    def __init__(self, player, board):
         super().__init__(player, board)
         self.generates_reward = False
-        self.ignore_diagonal = ignore_diagonal
+        self._adjacent_directions = None
 
     def turn_reward(self):
+        # if generating reward once, it can't be blocked
+        if self.generates_reward:
+            return self.reward_size
+
         # only produces a reward if adjacent to a city
         if self.age >= self.reward_delay:
-            # get adjacent pieces
-            n_dims = len(self.position)
-
-            if self.ignore_diagonal:
-                adjacent_directions = []
-                for i, val in itertools.product(range(n_dims), [-1, 1]):
-                    vec = np.zeros((n_dims,))
-                    vec[i] = val
-                    adjacent_directions.append(vec)
-            else:
-                adjacent_directions = itertools.product((-1, 0, 1), repeat=n_dims)
-
-            for direction in adjacent_directions:
+            # check if there's a city in adjacent positions
+            for direction in self._get_adjacent_directions(self.ignore_diagonal):
                 adj_pos = tuple(self.position + np.array(direction))
-                piece = self.board.get_piece(adj_pos)
-                if isinstance(piece, City) and piece.player == self.player:
+                if self._is_owned_city(adj_pos):
                     self.generates_reward = True
                     return self.reward_size
         return 0
+
+    def _is_owned_city(self, pos):
+        piece = self.board.get_piece(pos)
+        return isinstance(piece, City) and piece.player == self.player
+
+    def _get_adjacent_directions(self, ignore_diagonal):
+        """Get all directional vectors that land on adjacent pieces of self.
+
+        :param ignore_diagonal: whether to ignore diagonal directions or not
+        :return: iterable of directions as numpy arrays
+        """
+        # use cached directions
+        if self._adjacent_directions is not None:
+            return self._adjacent_directions
+
+        # compute directions 1st time
+        n_dims = len(self.position)
+        if ignore_diagonal:
+            adjacent_directions = []
+            for i, val in itertools.product(range(n_dims), [-1, 1]):
+                vec = np.zeros((n_dims,))
+                vec[i] = val
+                adjacent_directions.append(vec)
+            self._adjacent_directions = adjacent_directions
+        else:
+            self._adjacent_directions = itertools.product((-1, 0, 1), repeat=n_dims)
+
+        return self._adjacent_directions
 
     def at_placement(self):
         self.player.population += 1
