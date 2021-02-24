@@ -4,7 +4,7 @@ from gym.spaces import MultiDiscrete, Box, Discrete
 from gym_env.game.game import ExpandoGame
 from gym_env.game.pieces import Farm, City, Empty
 from gym_env.rendering import GameRenderer
-from spaces import OneHot, OneHotBox
+from gym_env.spaces import OneHot, OneHotBox
 
 
 class Expando(Env):
