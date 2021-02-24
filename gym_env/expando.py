@@ -10,10 +10,25 @@ from spaces import OneHot, OneHotBox
 class Expando(Env):
     """Gym environment wrapping the expando game. For details on the game, check the ExpandoGame class.
 
-    Action-space description:
+    Action-space:
+        Multidiscrete: (move_direction, action_type) with move_direction in {0, ..., 2 * n_axis}, where 0 - n_axis
+        represent movement along an axis in the positive direction and n_axis - 2 * n_axis in negative direction. And
+        action_type is in {piece_type_0, ..., piece_type_n}, ie.e. there is a placement action for each type of piece.
+
+        If `multi_discrete_actions` is set to False, the discrete action space over all items in the cartesian product
+        of move_direction and action_type will be used to get a single discrete action space over
+        {0,..., n_axis * piece_type_n}. The order of action pairs then is the same as returned by `itertools.product()`.
 
     Observation-space description:
+        A Box space where each observation has dimensions (axis_0 x axis_1 ... x axis_n x n_one_hot x n_scores)
+        where axis_k is the length of the k-th axis of the game board grid,
+        n_one_hot = 1 + n_players * (n_piece_types - 1) the dimension of the piece's one-hot encodings and n_scores = 3
+        is the number of additional normalized features regarding the player: is_cursor_position, room, population.
+        Note that n_one_hot accounts for the empty piece_type which doesn't belong to a player.
 
+        If `flat_observations` is set to True, the box observations are going to be
+        (axis_0 * axis_1 ... * axis_n * n_one_hot + n_scores) dimensional vectors, where n_scores = 3 + n_axis, since
+        the cursor's position is on longer represented as bit, but as normalized (x, y, ...) coordinates.
     """
 
     def __init__(self,
