@@ -8,6 +8,14 @@ from spaces import OneHot, OneHotBox
 
 
 class Expando(Env):
+    """Gym environment wrapping the expando game. For details on the game, check the ExpandoGame class.
+
+    Action-space description:
+
+    Observation-space description:
+
+    """
+
     def __init__(self,
                  grid_size: tuple,
                  n_players: int = 2,
@@ -105,7 +113,7 @@ class Expando(Env):
         self.game.seed(seed)
 
     def reset(self, player_id=0):
-        """
+        """Reset the environment.
 
         :param player_id: id of the player to get the first observation from.
         :return:
@@ -116,5 +124,8 @@ class Expando(Env):
         return self.game.get_observation(0, self.observation_format)
 
     def render(self, mode='human'):
+        """Render a pyglet visualization. Only works with 2D grids.
+        """
+        assert len(self.game.grid_size) < 3, 'Only 2D grids are supported for rendering at the moment.'
         if self.do_render:
             self.renderer.step()
