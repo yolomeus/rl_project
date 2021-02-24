@@ -68,6 +68,7 @@ class OneHotBox(Box):
         return obs
 
     def contains(self, x):
+        x = np.squeeze(x)
         n_one_hot = self.one_hot.one_hot_dim
 
         if not self.flatten:
