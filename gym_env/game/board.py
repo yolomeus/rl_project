@@ -7,9 +7,15 @@ from gym_env.game.pieces import Empty
 
 
 class Board:
+    """Board representation for the Expando Game.
+    """
+
     def __init__(self, grid_size, game):
+        """
+        :param grid_size: dimensions of the board.
+        :param game: game which the board belongs to.
+        """
         self.grid_size = grid_size
-        self.game = game
         self.type_to_id = {t: i for i, t in enumerate(game.piece_types)}
         # shared empty field
         self.empty_field = Empty(None, self)
@@ -19,6 +25,13 @@ class Board:
         self.one_hot_dim = 1 + game.n_players * (len(game.piece_types) - 1)
         self._n_piece_types = len(self.type_to_id) - 1
         self._one_hots = np.eye(self.one_hot_dim)
+
+    @property
+    def all_positions(self):
+        """Iterate over all possible positions on the board.
+        :return: an iterable of positions.
+        """
+        return itertools.product(*(range(x) for x in self.grid_size))
 
     def get_piece(self, coordinates):
         """Get the piece at the specified coordinates.
@@ -43,11 +56,9 @@ class Board:
             return True
         return False
 
-    @property
-    def all_positions(self):
-        return itertools.product(*(range(x) for x in self.grid_size))
-
     def reset_grid(self):
+        """Clear the grid.
+        """
         self.grid = defaultdict(lambda: self.empty_field)
 
     def is_within_grid(self, position):
@@ -63,9 +74,28 @@ class Board:
         return True
 
     def is_occupied(self, position):
+        """Check whether a piece is placed at a position.
+
+        :param position: the position to check on the board.
+        :return: bool whether position is occupied
+        """
         return self.grid[position] is not self.empty_field
 
-    def piece_to_one_hot(self, piece, observing_player_id):
+    def is_full(self):
+        """Check whether all fields on the board are occupied.
+
+        :return: True if board is filled with pieces.
+        """
+        return all([self.is_occupied(pos) for pos in self.all_positions])
+
+    def _piece_to_one_hot(self, piece, observing_player_id):
+        """Encode a piece as one-hot depending relative to the observing player, i.e. the player sees herself as player
+        0.
+
+        :param piece: the piece to encode.
+        :param observing_player_id: the player_id of the player that observes the piece
+        :return: numpy array as one-hot encoding
+        """
         piece_type_id = self.type_to_id[type(piece)]
         # empty piece doesn't belong to a player
         if piece == self.empty_field:
@@ -89,7 +119,7 @@ class Board:
         return self._one_hots[one_hot_id]
 
     def to_one_hot(self, observing_player_id=0):
-        """
+        """Get a one-hot representation of the grid.
 
         :param observing_player_id: id of the player that observes. This player's pieces will be encoded as if
         the player was player 0.
@@ -97,9 +127,6 @@ class Board:
         """
         one_hot_grid = np.zeros((*self.grid_size, self.one_hot_dim))
         for vec in self.all_positions:
-            one_hot_grid[vec] = self.piece_to_one_hot(self.grid[vec], observing_player_id)
+            one_hot_grid[vec] = self._piece_to_one_hot(self.grid[vec], observing_player_id)
 
         return one_hot_grid
-
-    def is_full(self):
-        return all([self.is_occupied(pos) for pos in self.all_positions])
