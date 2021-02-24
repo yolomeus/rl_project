@@ -6,7 +6,17 @@ from pyglet.shapes import Rectangle
 
 
 class Piece(ABC):
+    """Base-class for pieces. A piece can generate reward based on its and other pieces positions on the board that it
+    holds a reference to.
+    """
+
     def __init__(self, player, board, position=None):
+        """
+
+        :param player: player that the piece belongs to
+        :param board: board that the piece is placed on
+        :param position: position on the board
+        """
         self.age = 0
         self.player = player
         self.board = board
@@ -14,16 +24,28 @@ class Piece(ABC):
 
     @abstractmethod
     def turn_reward(self):
-        """Compute the current reward for the piece"""
+        """Compute the current reward that the piece generates
+        :return: a numeric reward
+        """
 
     def at_placement(self):
-        """Perform any effects that placement of this piece has."""
+        """Perform any side-effects that result from placing this piece. This is completely optional.
+        """
         pass
 
     def __str__(self):
         return f'Player {self.player.player_id}: {self.__class__.__name__}'
 
     def to_drawable(self, x, y, batch, square_size, color):
+        """Return a drawable 2D representation of the piece as a pyglet supported object. Defaults to a square.
+
+        :param x: x position that the piece should be drawn at.
+        :param y: y position that the piece should be drawn at.
+        :param batch: pyglet Batch that the drawable should be added to.
+        :param square_size: size of a square on the grid that the piece will be drawn on.
+        :param color: color the piece should have.
+        :return: a drawable pyglet object that holds a reference/was added to `batch`.
+        """
         r = Rectangle(x, y,
                       square_size, square_size,
                       color=color,
@@ -32,6 +54,8 @@ class Piece(ABC):
 
 
 class Empty(Piece):
+    """Piece that represents an Empty field.
+    """
 
     def turn_reward(self):
         return 0
@@ -45,15 +69,27 @@ class Empty(Piece):
 
 
 class City(Piece):
+    """Cities increase a players capacity for population, but do not generate rewards themselves. However, other pieces
+    will depend on cities for generating rewards.
+    """
+
+    # the capacity a city will grand the player
     room_capacity = 0.5
 
     def turn_reward(self):
+        """A city doesn't actively produce reward.
+        :return: zero reward
+        """
         return 0
 
     def at_placement(self):
+        """Placing a city grants the player additional room for population.
+        """
         self.player.room += self.room_capacity
 
     def to_drawable(self, x, y, batch, square_size, color):
+        """A city is represented as square containing a smaller square.
+        """
         shapes = []
         r = super().to_drawable(x, y, batch, square_size, color)
         shapes.append(r)
@@ -72,8 +108,13 @@ class City(Piece):
 
 
 class Farm(Piece):
+    """Farms increase the overall population count of a player, but also generate reward when placed adjacent to a city.
+    """
+
+    population_increase = 1
     reward_size = 0.1
     reward_delay = 0
+
     # whether to ignore adjacent cities that are diagonal w.r.t self
     ignore_diagonal = True
 
@@ -83,6 +124,11 @@ class Farm(Piece):
         self._adjacent_directions = None
 
     def turn_reward(self):
+        """Reward is only generated when the farm is placed adjacent to a city. Once next to a city, we assume it can no
+        longer be moved and will generate reward for the rest of te object's lifetime.
+
+        :return:
+        """
         # if generating reward once, it can't be blocked
         if self.generates_reward:
             return self.reward_size
@@ -126,7 +172,9 @@ class Farm(Piece):
         return self._adjacent_directions
 
     def at_placement(self):
-        self.player.population += 1
+        """Placing a farm causes an increase in population for the player.
+        """
+        self.player.population += self.population_increase
 
     def to_drawable(self, x, y, batch, square_size, color):
         r = super().to_drawable(x, y, batch, square_size, color)
