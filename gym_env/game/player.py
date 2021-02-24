@@ -2,7 +2,7 @@ import numpy as np
 
 
 class Player:
-    """A Player can have a list of associated pieces, set on a board. To set pieces, the player has a cursor that can
+    """A Player can have a list of associated pieces set on a board. To set pieces, the player has a cursor that can
     be moved and indicates where to place a piece.
     """
 
@@ -56,10 +56,10 @@ class Player:
         return success
 
     def get_observation(self, formatting):
-        """
+        """Get an observation from the player's perspective encoded as numpy array.
 
-        :param formatting: 'flat' or 'grid'
-        :return:
+        :param formatting: 'flat' or 'grid', whether to return the observations as flat vector or as tensor.
+        :return: a numpy array representing an observation.
         """
         if formatting == 'grid':
             return self.get_grid_observation()
@@ -67,6 +67,10 @@ class Player:
             return self.get_flat_observation()
 
     def get_grid_observation(self):
+        """Get the player's observation of the board as multidimensional tensor.
+
+        :return: a multidimensional numpy array
+        """
         cursor_bit = np.zeros(self.board.grid_size + (1,))
         cursor_bit[tuple(self.cursor)] = 1
 
@@ -83,6 +87,10 @@ class Player:
         return obs
 
     def get_flat_observation(self):
+        """Get the player's observation of the board as flat vector.
+
+        :return: a 1D numpy array.
+        """
         grid = self.board.to_one_hot(self.player_id).ravel()
         cursor_normalized = self.cursor / np.array(self.board.grid_size)
 
@@ -105,5 +113,9 @@ class Player:
 
     @property
     def current_reward(self):
+        """The amount of reward that the player receives given the board's current constellation.
+
+        :return: the numerical reward
+        """
         turn_rewards = sum([piece.turn_reward() for piece in self.pieces])
         return turn_rewards + self.happiness_penalty
