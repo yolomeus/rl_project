@@ -121,7 +121,7 @@ class Expando(Env):
         self.game.reset()
         if self.observe_all:
             return [self.game.get_observation(i, self.observation_format) for i in range(self.n_players)]
-        return self.game.get_observation(0, self.observation_format)
+        return self.game.get_observation(player_id, self.observation_format)
 
     def render(self, mode='human'):
         """Render a pyglet visualization. Only works with 2D grids.
