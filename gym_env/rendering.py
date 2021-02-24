@@ -1,5 +1,3 @@
-from random import randint
-
 import pyglet
 from pyglet.graphics import Batch
 from pyglet.shapes import Rectangle
@@ -7,20 +5,18 @@ from pyglet.text import Label
 from pyglet.window import Window
 
 from gym_env.game.game import ExpandoGame
-from gym_env.game.pieces import Empty, Farm, City
 
 
 class GameRenderer(Window):
     """Takes a 2D ExpandoGame and draws it, everytime `step()` is called.
-
     """
 
     def __init__(self, game: ExpandoGame, cell_size=50, padding=10, ui_font_size=12):
         """
-
         :param game: The game to render
         :param cell_size: the length of each square in pixels
         :param padding: the padding between cells in pixels
+        :param ui_font_size: size of the font, used to show player statistics.
         """
         self.player_colors = [(84, 22, 180),
                               (255, 106, 0),
@@ -46,6 +42,8 @@ class GameRenderer(Window):
 
     @staticmethod
     def step():
+        """Render a single frame.
+        """
         pyglet.clock.tick()
 
         for window in pyglet.app.windows:
@@ -55,13 +53,16 @@ class GameRenderer(Window):
             window.flip()
 
     def on_draw(self):
+        """triggered by pyglet to draw everything.
+        """
         self.clear()
         self.draw_grid()
         self.draw_cursors()
         self.draw_scores()
 
     def draw_grid(self):
-
+        """Draws the board's grid.
+        """
         h, w = self.board.grid_size
 
         pieces = []
@@ -75,6 +76,9 @@ class GameRenderer(Window):
         self.batch.draw()
 
     def draw_cursors(self):
+        """Draw the cursors of each player.
+        """
+
         rects = []
         for player in self.game.players:
             cursor = tuple(player.cursor)
@@ -90,6 +94,8 @@ class GameRenderer(Window):
         self.batch.draw()
 
     def draw_scores(self):
+        """Draw the ui containing player statistics.
+        """
         batch = Batch()
         labels = []
         header = ['pl', 'population', 'room', 'happiness', 'turn reward', 'total reward']
@@ -126,12 +132,28 @@ class GameRenderer(Window):
         batch.draw()
 
     def _get_canvas_pos(self, x, y):
+        """Translate a position on the board to a position on the pyglet canvas.
+
+        :param x: x coordinate
+        :param y: y coordinate
+        :return: canvas position in pixels.
+        """
         return x * self.cell_size + self.padding, y * self.cell_size + self.padding
 
     def _get_piece_color(self, piece):
+        """Get the color of a piece, depending on it's owner.
+
+        :param piece: the piece to get the color for.
+        :return: an rgb color tuple
+        """
         return self._get_player_color(piece.player)
 
     def _get_player_color(self, player):
+        """Get the color assigned to a player, returns gray if None.
+
+        :param player: the player to get the associated color from.
+        :return: a rgb tuple
+        """
         if player is None:
             return 10, 10, 10
 
@@ -139,6 +161,12 @@ class GameRenderer(Window):
 
     @staticmethod
     def brighten(color, val):
+        """Increase color intensity on all channels, clips anything above 255.0 or below 0.0.
+
+        :param color: tuple representing the color to brighten.
+        :param val: amount of added brightness.
+        :return: a tuple
+        """
         new_color = []
         for c in color:
             x = c + val
