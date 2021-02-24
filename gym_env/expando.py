@@ -19,7 +19,8 @@ class Expando(Env):
                  render=False,
                  cell_size=50,
                  padding=5,
-                 ui_font_size=14):
+                 ui_font_size=14,
+                 seed=None):
 
         if policies_other is not None:
             assert n_players - 1 == len(policies_other), 'please provide a policy for each opponent.'
@@ -46,11 +47,14 @@ class Expando(Env):
                                            Box(0.0, 1.0, shape=(2 + k_cursor_features,)),
                                            flatten=flat_observations)
 
-        self.game = ExpandoGame(grid_size, n_players, max_turns, self.piece_types, final_reward=100)
+        self.game = ExpandoGame(grid_size, n_players, max_turns, final_reward=100, piece_types=self.piece_types,
+                                seed=seed)
         self.observation_format = 'flat' if flat_observations else 'grid'
         self.do_render = render
         if self.do_render:
             self.renderer = GameRenderer(self.game, cell_size, padding, ui_font_size)
+
+        self.seed(seed)
 
     def step(self, action, other_actions=None):
         """Perform each player's turn.
@@ -91,8 +95,14 @@ class Expando(Env):
         return obs_0, reward_0, done, info
 
     def seed(self, seed=None):
+        """Set seeds of all random number generators. Note that pseudo random actions are performed at initialization,
+        so in order to seed these actions as well you need to pass a seed to the constructor.
+
+        :param seed: seed to set
+        """
         self.observation_space.seed(seed)
         self.action_space.seed(seed)
+        self.game.seed(seed)
 
     def reset(self, player_id=0):
         """

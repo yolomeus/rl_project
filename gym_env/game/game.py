@@ -189,3 +189,11 @@ class ExpandoGame:
             self._action_pairs = [(a_0, a_1) for a_0, a_1 in itertools.product(move_directions, piece_types)]
 
         return self._action_pairs[action]
+
+    def seed(self, seed=None):
+        """Seed any random number generators. Note that pseudo random actions are performed at initialization, so in
+        order to seed these actions as well you need to pass a seed to the constructor.
+
+        :param seed: the seed to set.
+        """
+        self.np_random = default_rng(seed)
