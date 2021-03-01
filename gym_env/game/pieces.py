@@ -10,6 +10,9 @@ class Piece(ABC):
     holds a reference to.
     """
 
+    # identifier for type of piece
+    name = None
+
     def __init__(self, player, board, position=None):
         """
 
@@ -56,6 +59,7 @@ class Piece(ABC):
 class Empty(Piece):
     """Piece that represents an Empty field.
     """
+    name = 'empty'
 
     def turn_reward(self):
         return 0
@@ -72,9 +76,11 @@ class City(Piece):
     """Cities increase a players capacity for population, but do not generate rewards themselves. However, other pieces
     will depend on cities for generating rewards.
     """
+    name = 'city'
 
-    # the capacity a city will grand the player
-    room_capacity = 0.5
+    def __init__(self, player, board, room_capacity):
+        super().__init__(player, board)
+        self.room_capacity = room_capacity
 
     def turn_reward(self):
         """A city doesn't actively produce reward.
@@ -110,18 +116,18 @@ class City(Piece):
 class Farm(Piece):
     """Farms increase the overall population count of a player, but also generate reward when placed adjacent to a city.
     """
+    name = 'farm'
 
-    population_increase = 1
-    reward_size = 0.1
-    reward_delay = 0
-
-    # whether to ignore adjacent cities that are diagonal w.r.t self
-    ignore_diagonal = True
-
-    def __init__(self, player, board):
+    def __init__(self, player, board, population_increase, reward_size, reward_delay, ignore_diagonal):
         super().__init__(player, board)
         self.generates_reward = False
         self._adjacent_directions = None
+
+        self.population_increase = population_increase
+        self.reward_size = reward_size
+        self.reward_delay = reward_delay
+        # whether to ignore adjacent cities that are diagonal w.r.t self
+        self.ignore_diagonal = ignore_diagonal
 
     def turn_reward(self):
         """Reward is only generated when the farm is placed adjacent to a city. Once next to a city, we assume it can no

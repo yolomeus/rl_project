@@ -16,14 +16,14 @@ class Board:
         :param game: game which the board belongs to.
         """
         self.grid_size = grid_size
-        self.type_to_id = {t: i for i, t in enumerate(game.piece_types)}
+        self.name_to_id = game.name_to_id
         # shared empty field
         self.empty_field = Empty(None, self)
         self.grid = None
         self.reset_grid()
 
-        self.one_hot_dim = 1 + game.n_players * (len(game.piece_types) - 1)
-        self._n_piece_types = len(self.type_to_id) - 1
+        self.one_hot_dim = 1 + game.n_players * (len(game.name_to_id) - 1)
+        self._n_piece_types = len(self.name_to_id) - 1
         self._one_hots = np.eye(self.one_hot_dim)
 
     @property
@@ -96,7 +96,7 @@ class Board:
         :param observing_player_id: the player_id of the player that observes the piece
         :return: numpy array as one-hot encoding
         """
-        piece_type_id = self.type_to_id[type(piece)]
+        piece_type_id = self.name_to_id[piece.name]
         # empty piece doesn't belong to a player
         if piece == self.empty_field:
             return self._one_hots[0]

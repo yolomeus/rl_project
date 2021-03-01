@@ -1,8 +1,9 @@
 import itertools
-from abc import ABCMeta
 
 import numpy as np
+from hydra.utils import instantiate
 from numpy.random import default_rng
+from omegaconf import DictConfig
 
 from gym_env.game.board import Board
 from gym_env.game.pieces import Empty
@@ -30,7 +31,9 @@ class ExpandoGame:
         """
         self.np_random = default_rng(seed)
 
-        self.piece_types = piece_types
+        self.name_to_id = {t: i for i, t in enumerate(piece_types.keys())}
+        self.id_to_type = {i: t for i, t in enumerate(piece_types.values())}
+
         self.grid_size = grid_size
         self.n_dims = len(grid_size)
 
@@ -68,12 +71,13 @@ class ExpandoGame:
 
         cursor_move, place_action = action
         move_direction: np.ndarray = self._decode_action(cursor_move, 'cursor_move')
-        piece_type: ABCMeta = self._decode_action(place_action, 'piece_type')
+        piece_config: DictConfig = self._decode_action(place_action, 'piece_type')
 
         cur_player = self.players[player_id]
         cur_player.move_cursor(move_direction)
-        if not piece_type == Empty:
-            cur_player.place_piece(piece_type(cur_player, self.board))
+        piece = instantiate(piece_config, player=cur_player, board=self.board)
+        if not type(piece) == Empty:
+            cur_player.place_piece(piece)
 
         reward = self.players[player_id].current_reward
         self.players[player_id].total_reward += reward
@@ -171,9 +175,10 @@ class ExpandoGame:
         """Decode the correct piece type from an integer id.
 
         :param action: integer id representing a piece type
-        :return: a class object for the correct type of piece
+        :return: a DictConfig object for instantiating the piece
         """
-        piece_type = self.piece_types[action]
+
+        piece_type = self.id_to_type[action]
         return piece_type
 
     def _discrete_to_multidiscrete(self, action):
@@ -184,7 +189,7 @@ class ExpandoGame:
         """
         if self._action_pairs is None:
             move_directions = range(2 * self.n_dims + 1)
-            piece_types = range(len(self.piece_types))
+            piece_types = range(len(self.name_to_id))
 
             self._action_pairs = [(a_0, a_1) for a_0, a_1 in itertools.product(move_directions, piece_types)]
 
