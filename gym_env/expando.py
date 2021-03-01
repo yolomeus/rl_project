@@ -2,7 +2,6 @@ from gym import Env
 from gym.spaces import MultiDiscrete, Box, Discrete
 
 from gym_env.game.game import ExpandoGame
-from gym_env.game.pieces import Farm, City, Empty
 from gym_env.rendering import GameRenderer
 from gym_env.spaces import OneHot, OneHotBox
 
@@ -33,8 +32,10 @@ class Expando(Env):
 
     def __init__(self,
                  grid_size: tuple,
+                 piece_types: tuple,
                  n_players: int = 2,
                  max_turns=100,
+                 final_reward=100,
                  policies_other=None,
                  observe_all=False,
                  multi_discrete_actions=False,
@@ -47,10 +48,11 @@ class Expando(Env):
 
         if policies_other is not None:
             assert n_players - 1 == len(policies_other), 'please provide a policy for each opponent.'
+
         self.n_players = n_players
         self.policies_other = policies_other
         self.observe_all = observe_all
-        self.piece_types = (Empty, Farm, City)
+        self.piece_types = piece_types
         n_piece_types = len(self.piece_types)
 
         # actions: (cursor move direction, piece_type)
@@ -70,7 +72,8 @@ class Expando(Env):
                                            Box(0.0, 1.0, shape=(2 + k_cursor_features,)),
                                            flatten=flat_observations)
 
-        self.game = ExpandoGame(grid_size, n_players, max_turns, final_reward=100, piece_types=self.piece_types,
+        self.game = ExpandoGame(grid_size, n_players, max_turns, final_reward=final_reward,
+                                piece_types=piece_types,
                                 seed=seed)
         self.observation_format = 'flat' if flat_observations else 'grid'
         self.do_render = render
@@ -131,7 +134,7 @@ class Expando(Env):
         """Reset the environment.
 
         :param player_id: id of the player to get the first observation from.
-        :return:
+        :return: observation of player with player_id or a list of all observations if `observe_all` was set.
         """
         self.game.reset()
         if self.observe_all:
