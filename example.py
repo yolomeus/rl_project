@@ -1,15 +1,14 @@
 from time import sleep
 
-from stable_baselines3 import DQN
+import hydra
+from omegaconf import DictConfig
 
 from gym_env.expando import Expando
 
 
-def main():
-    # load policy from a checkpoint and use it as opponent
-    policy = DQN.load("ckpts/dqn_expando_15000000")
-    env = Expando(grid_size=(12, 16), max_turns=200, render=True, ui_font_size=14, flat_observations=True,
-                  observe_all=True, n_players=2, policies_other=[policy], seed=420)
+@hydra.main(config_path='gym_env/config', config_name='config')
+def main(cfg: DictConfig):
+    env = Expando(**cfg)
 
     obs_0, obs_1 = env.reset()
     for _ in range(10000):
