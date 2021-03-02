@@ -2,7 +2,7 @@ import os
 
 from gym import Env
 from gym.spaces import MultiDiscrete, Box, Discrete
-from hydra.experimental import initialize, compose
+from hydra.experimental import compose, initialize_config_dir
 from hydra.utils import to_absolute_path
 
 from gym_env.game.game import ExpandoGame
@@ -154,13 +154,15 @@ class Expando(Env):
 
     @staticmethod
     def from_config(file_path):
-        """Load environment from a hydra generated yaml
+        """Load environment using a yaml configuration file or a composable hydra config
 
-        :param file_path: relative path to main config file.
+        :param file_path: path to the config file
         :return: A configured Expando environment
         """
-        conf_path, file_name = os.path.split(file_path)
-        with initialize(config_path=conf_path):
+        file_path = to_absolute_path(file_path)
+        conf_dir, file_name = os.path.split(file_path)
+        with initialize_config_dir(conf_dir):
             cfg = compose(config_name=file_name)
-            env = Expando(**cfg)
+
+        env = Expando(**cfg)
         return env
