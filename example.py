@@ -1,22 +1,19 @@
 from time import sleep
 
-import hydra
-from omegaconf import DictConfig
-
-from gym_env.expando import Expando
+from gym_env.env import Expando
 
 
-@hydra.main(config_path='gym_env/config', config_name='config')
-def main(cfg: DictConfig):
-    env = Expando(**cfg)
-
+def main():
+    env = Expando(grid_size=(8, 8), max_turns=200, observe_all=True, render=True)
+    # or load environment using a yaml default_config:
+    # env = Expando.from_config('gym_env/default_config/config.yaml')
     obs_0, obs_1 = env.reset()
     for _ in range(10000):
         action_0 = env.action_space.sample()
         obs_0, reward, done, info = env.step(action_0)
         obs_1 = info['obs_other'][0]
         env.render()
-        sleep(.05)
+        sleep(.01)
         assert env.observation_space.contains(obs_0)
 
 
