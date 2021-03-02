@@ -1,5 +1,9 @@
+import os
+
 from gym import Env
 from gym.spaces import MultiDiscrete, Box, Discrete
+from hydra.experimental import initialize, compose
+from hydra.utils import to_absolute_path
 
 from gym_env.game.game import ExpandoGame
 from gym_env.rendering import GameRenderer
@@ -147,3 +151,16 @@ class Expando(Env):
         assert len(self.game.grid_size) < 3, 'Only 2D grids are supported for rendering at the moment.'
         if self.do_render:
             self.renderer.step()
+
+    @staticmethod
+    def from_config(file_path):
+        """Load environment from a hydra generated yaml
+
+        :param file_path: relative path to main config file.
+        :return: A configured Expando environment
+        """
+        conf_path, file_name = os.path.split(file_path)
+        with initialize(config_path=conf_path):
+            cfg = compose(config_name=file_name)
+            env = Expando(**cfg)
+        return env
