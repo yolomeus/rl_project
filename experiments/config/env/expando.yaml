@@ -1,0 +1,27 @@
+# @package _group_
+
+seed: ${random_seed}
+observe_all: False
+flat_observations: True
+render: False
+
+# game
+grid_size: [ 12, 16 ]
+n_players: 2
+max_turns: 200
+final_reward: 100
+
+piece_types:
+  empty:
+    _target_: gym_env.game.pieces.Empty
+
+  farm:
+    _target_: gym_env.game.pieces.Farm
+    population_increase: 1
+    reward_size: 0.1
+    reward_delay: 0
+    ignore_diagonal: True
+
+  city:
+    _target_: gym_env.game.pieces.City
+    room_capacity: 0.5
