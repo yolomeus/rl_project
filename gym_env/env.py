@@ -1,9 +1,12 @@
+import logging
 import os
+from os.path import relpath
 
 from gym import Env
 from gym.spaces import MultiDiscrete, Box, Discrete
 from hydra.experimental import compose, initialize_config_dir
 from hydra.utils import to_absolute_path
+from omegaconf import OmegaConf
 
 from gym_env.game.game import ExpandoGame
 from gym_env.rendering import GameRenderer
@@ -36,10 +39,10 @@ class Expando(Env):
 
     def __init__(self,
                  grid_size: tuple,
-                 piece_types: tuple,
                  n_players: int = 2,
                  max_turns=100,
                  final_reward=100,
+                 piece_types=None,
                  policies_other=None,
                  observe_all=False,
                  multi_discrete_actions=False,
@@ -56,7 +59,11 @@ class Expando(Env):
         self.n_players = n_players
         self.policies_other = policies_other
         self.observe_all = observe_all
-        self.piece_types = piece_types
+
+        if piece_types is None:
+            self.piece_types = self._get_default_piece_types()
+        else:
+            self.piece_types = piece_types
         n_piece_types = len(self.piece_types)
 
         # actions: (cursor move direction, piece_type)
@@ -77,7 +84,7 @@ class Expando(Env):
                                            flatten=flat_observations)
 
         self.game = ExpandoGame(grid_size, n_players, max_turns, final_reward=final_reward,
-                                piece_types=piece_types,
+                                piece_types=self.piece_types,
                                 seed=seed)
         self.observation_format = 'flat' if flat_observations else 'grid'
         self.do_render = render
@@ -166,3 +173,13 @@ class Expando(Env):
 
         env = Expando(**cfg)
         return env
+
+    @staticmethod
+    def _get_default_piece_types():
+        """Load the default piece types from default_config/
+
+        :return: DictConfig containing piece_types
+        """
+        this_file_dir = os.path.split(relpath(__file__))[0]
+        path = os.path.join(this_file_dir, 'default_config/piece_types.yaml')
+        return OmegaConf.load(path).piece_types
