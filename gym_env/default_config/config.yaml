@@ -1,8 +1,8 @@
 # env
 seed: 1338
-observe_all: True
+observe_all: False
 flat_observations: True
-render: True
+render: False
 
 # game
 grid_size: [ 12, 16 ]
