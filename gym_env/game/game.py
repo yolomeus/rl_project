@@ -1,12 +1,11 @@
 import itertools
+from copy import copy
 
 import numpy as np
 from hydra.utils import instantiate
 from numpy.random import default_rng
-from omegaconf import DictConfig
 
 from gym_env.game.board import Board
-from gym_env.game.pieces import Empty
 from gym_env.game.player import Player
 
 
@@ -32,7 +31,6 @@ class ExpandoGame:
         self.np_random = default_rng(seed)
 
         self.name_to_id = {t: i for i, t in enumerate(piece_types.keys())}
-        self.id_to_type = {i: t for i, t in enumerate(piece_types.values())}
 
         self.grid_size = grid_size
         self.n_dims = len(grid_size)
@@ -47,6 +45,8 @@ class ExpandoGame:
 
         self._init_player_positions()
         self._action_pairs = None
+        self._id_to_piece = {i: instantiate(piece, player=None, board=None) for i, piece in
+                             enumerate(piece_types.values())}
 
     def _init_player_positions(self):
         """Place each player's cursor at a random position.
@@ -71,12 +71,12 @@ class ExpandoGame:
 
         cursor_move, place_action = action
         move_direction: np.ndarray = self._decode_action(cursor_move, 'cursor_move')
-        piece_config: DictConfig = self._decode_action(place_action, 'piece_type')
+        piece_id = self._decode_action(place_action, 'piece_type')
 
         cur_player = self.players[player_id]
         cur_player.move_cursor(move_direction)
-        piece = instantiate(piece_config, player=cur_player, board=self.board)
-        if not type(piece) == Empty:
+        if piece_id is not None:
+            piece = self._get_piece(piece_id, cur_player)
             cur_player.place_piece(piece)
 
         reward = self.players[player_id].current_reward
@@ -171,15 +171,15 @@ class ExpandoGame:
 
         return direction
 
-    def _decode_piece_type(self, action):
+    @staticmethod
+    def _decode_piece_type(action):
         """Decode the correct piece type from an integer id.
 
         :param action: integer id representing a piece type
-        :return: a DictConfig object for instantiating the piece
+        :return: a piece object
         """
 
-        piece_type = self.id_to_type[action]
-        return piece_type
+        return None if action is 0 else action
 
     def _discrete_to_multidiscrete(self, action):
         """Transform a discrete action into a multidiscrete action by looking up a corresponding action pair.
@@ -202,3 +202,9 @@ class ExpandoGame:
         :param seed: the seed to set.
         """
         self.np_random = default_rng(seed)
+
+    def _get_piece(self, piece_id, player):
+        piece = copy(self._id_to_piece[piece_id])
+        piece.player = player
+        piece.board = self.board
+        return piece

@@ -71,7 +71,7 @@ def main(cfg: DictConfig):
 
     tb_cb = TensorboardCallback()
     self_play = EveryNTimesteps(10000, callback=SelfPlay('ckpts/', cfg.env))
-    model.learn(total_timesteps=10000000, callback=[tb_cb, self_play], tb_log_name="SP_DQN")
+    model.learn(total_timesteps=10000000, callback=[tb_cb], tb_log_name="SP_DQN")
 
 
 if __name__ == '__main__':

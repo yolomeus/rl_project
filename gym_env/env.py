@@ -52,7 +52,7 @@ class Expando(Env):
                  padding=5,
                  ui_font_size=14,
                  seed=None):
-
+        grid_size = tuple(grid_size)
         if policies_other is not None:
             assert n_players - 1 == len(policies_other), 'please provide a policy for each opponent.'
 
