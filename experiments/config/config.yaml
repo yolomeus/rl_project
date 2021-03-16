@@ -1,4 +1,23 @@
-random_seed: 1448
+random_seed: 104944296
+log_name: rnd_dqn
+
+n_total_steps: 5e+6
+ckpt_freq: 500000
+self_play: False
+n_update_selfplay: 100000
 
 defaults:
   - env: expando
+
+model:
+  seed: ${random_seed}
+  buffer_size: 1000000
+  learning_starts: 50000
+  batch_size: 128
+  learning_rate: 1e-5
+  tau: 1.0
+  exploration_fraction: 0.2
+
+hydra:
+  sweep:
+    dir: multirun/${now:%Y-%m-%d}/${now:%H-%M-%S}

@@ -3,7 +3,7 @@ import os
 import hydra
 from omegaconf import DictConfig
 from stable_baselines3 import DQN
-from stable_baselines3.common.callbacks import BaseCallback, EveryNTimesteps
+from stable_baselines3.common.callbacks import BaseCallback, EveryNTimesteps, CheckpointCallback
 from stable_baselines3.common.env_util import make_vec_env
 from stable_baselines3.dqn import MlpPolicy
 
@@ -62,16 +62,19 @@ def main(cfg: DictConfig):
     env = get_env(None, cfg.env)
     model = DQN(MlpPolicy,
                 env,
-                buffer_size=2000000,
-                batch_size=1024,
-                tau=0.01,
-                exploration_fraction=0.5,
+                **cfg.model,
                 tensorboard_log='logs/',
                 verbose=1)
 
-    tb_cb = TensorboardCallback()
-    self_play = EveryNTimesteps(10000, callback=SelfPlay('ckpts/', cfg.env))
-    model.learn(total_timesteps=10000000, callback=[tb_cb], tb_log_name="SP_DQN")
+    callbacks = [TensorboardCallback()]
+    if cfg.self_play:
+        self_play = EveryNTimesteps(cfg.n_update_selfplay, callback=SelfPlay('ckpts/', cfg.env))
+        callbacks.append(self_play)
+    if cfg.ckpt_freq:
+        ckpt_cb = CheckpointCallback(save_freq=cfg.ckpt_freq, save_path='ckpts/')
+        callbacks.append(ckpt_cb)
+
+    model.learn(total_timesteps=cfg.n_total_steps, callback=callbacks, tb_log_name=cfg.log_name)
 
 
 if __name__ == '__main__':
