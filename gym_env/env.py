@@ -52,6 +52,23 @@ class Expando(Env):
                  padding=5,
                  ui_font_size=14,
                  seed=None):
+        """
+
+        :param grid_size: tuple specifying the dimensions of the game's board.
+        :param n_players: number of players participating in the game.
+        :param max_turns: maximum number of turns per episode.
+        :param final_reward: amount of final reward given to the winner and taken from the losers.
+        :param piece_types: list of dict configs containing describing possible pieces.
+        :param policies_other: list of policies to use for opponents players.
+        :param observe_all: whether to return observations on `step()` for all players in the info dict or not.
+        :param multi_discrete_actions: whether to use a multi-discrete action space.
+        :param flat_observations: whether to flatten the observations or return as tensor.
+        :param render: enables rendering when calling `render()`.
+        :param cell_size: width/height of a cell when rendering.
+        :param padding: padding between cells when rendering.
+        :param ui_font_size: size of the ui font when rendering.
+        :param seed: random seed.
+        """
         grid_size = tuple(grid_size)
         if policies_other is not None:
             assert n_players - 1 == len(policies_other), 'please provide a policy for each opponent.'
