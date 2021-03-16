@@ -77,7 +77,7 @@ class Expando(Env):
         # observation space:
         # (d_0 * ... * d_n * piece_type * player
         # + cursor_d_0 + ... + cursor_d_n + population + room)
-        k_cursor_features = 2 if flat_observations else 1
+        k_cursor_features = len(grid_size) if flat_observations else 1
         obs_dims = grid_size + (1 + (n_piece_types - 1) * n_players,)
         self.observation_space = OneHotBox(OneHot(obs_dims),
                                            Box(0.0, 1.0, shape=(2 + k_cursor_features,)),
