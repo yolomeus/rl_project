@@ -4,6 +4,7 @@ channels:
   - defaults
 dependencies:
   - python=3.7
+  - numpy
   - gym=0.18.0
   - pyglet=1.5.15
   - pip:
