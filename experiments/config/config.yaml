@@ -3,6 +3,7 @@ log_name: rnd_dqn
 
 n_total_steps: 5e+6
 ckpt_freq: 500000
+# the self play option will replace the opponent policy with the current policy every n_update steps
 self_play: False
 n_update_selfplay: 100000
 
