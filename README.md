@@ -98,5 +98,6 @@ integers respectively, with one integer for the direction and one for the typ of
 
 For more details see the docstring.
 
+### Bonus: DQN (purple), trained against random policy
 
-
+![](expando_demo_dqn.gif)
