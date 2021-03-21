@@ -1,3 +1,5 @@
+"""Example on how to load a DQN policy and play against a random policy
+"""
 from time import sleep
 
 from omegaconf import OmegaConf
@@ -8,7 +10,7 @@ from gym_env.env import Expando
 
 def main():
     policy = DQN.load('experiments/multirun/grid_sweep/2021-03-07/14-13-11/1/ckpts/rl_model_5000000_steps.zip')
-    # or load environment using a yaml default_config:
+    # load the environment using the yaml that was used for training:
     cfg = OmegaConf.load('experiments/multirun/grid_sweep/2021-03-07/14-13-11/1/.hydra/config.yaml')
     env_cfg = cfg.env
     env_cfg.render = True
@@ -18,9 +20,6 @@ def main():
         action_0 = policy.predict(obs_0)[0][0]
         obs_0, reward, done, info = env.step(action_0)
         env.render()
-        if i == 2*99:
-            while True:
-                sleep(.01)
 
 
 if __name__ == '__main__':
