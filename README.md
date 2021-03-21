@@ -91,7 +91,10 @@ First, the state of the board can be represented as `m x n x (k + s)` dimensiona
 dimensions, `k` is the dimension of a one-hot representation of a field and `s=3` the number of player scores that are
 observed, normalized and including a cursor location bit.    
 Second, a flat representation which is a single `s + m * n * k` vector with `s=4` since now cursor coordinates are
-included as normalized x and y coordinates instead of a cursor bit.
+included as normalized x and y coordinates instead of a cursor bit.    
+Hence, space complexity for a grid state representation lies in `O(m * n * k)`, depending on grid size, possible number
+of different field allocations and assuming `s` stays constant. Or `O(m * n)` if we assume the base version of the game
+which only varies in board size.
 
 The action space can be set to either discrete or multidiscrete, where each action is encoded as integer or tuple of
 integers respectively, with one integer for the direction and one for the typ of piece to place.
