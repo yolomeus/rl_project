@@ -118,7 +118,7 @@ for the rest of the experiments. All other hyperparameters were left at their de
 `gym_env/default_config` and [here](https://stable-baselines3.readthedocs.io/en/master/modules/dqn.html).  
 With these hyperparameter settings, we then train on 3 different sized boards against a random policy. We observe mean
 reward per episode, as well as room and population at the end of each episode.  
-For each, the mean episode rewards after 5 million steps of training are as follows:
+After 5 million steps of training, the mean rewards over the last 100 episodes are as follows:
 
 | Grid Size   | Mean Reward     |
 | ----------- | :-----------:   |
@@ -126,8 +126,16 @@ For each, the mean episode rewards after 5 million steps of training are as foll
 | 15 x 20     | 204.3           |
 | 20 x 30     | 210.5           |
 
+Mean reward last 100 episodes for 8 x 8 (orange), 15 x 20 (blue), 20 x 30 (red):
 ![](res/img/rollout_ep_rew_mean_grid_sweep.svg)
-Mean reward per episode for 8 x 8 (orange), 15 x 20 (blue), 20 x 30 (red)
+
+Also, a trend towards increasing both room and population can be observed which is desirable in the game when they are
+balanced.
+
+population at episode end
+![](res/img/rollout_population.svg)
+room at episode end
+![](res/img/rollout_room.svg)
 
 For reproducing the experiment, simply run:
 
@@ -135,7 +143,8 @@ For reproducing the experiment, simply run:
 $ python -m experiments.train --multirun env.grid_size=[8,8],[15,20],[20,30]
 ````
 
-The runs took around 2.5h, 3.5h and 5h using a desktop computer with gtx 1070 gpu and a ryzen 3700x processor.  
+The runs took around 2.5h, 3.5h and 5h using a desktop computer with gtx 1070 gpu and a ryzen 3700x processor.
+
 ### DQN (purple), trained against random policy on a 15 x 20 board
 
 ![](res/img/expando_demo_dqn.gif)
