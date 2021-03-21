@@ -128,6 +128,13 @@ For each, the mean episode rewards after 5 million steps of training are as foll
 
 ![](res/img/rollout_ep_rew_mean_grid_sweep.svg)
 Mean reward per episode for 8 x 8 (orange), 15 x 20 (blue), 20 x 30 (red)
+
+For reproducing the experiment, simply run:
+
+```shell
+$ python -m experiments.train --multirun env.grid_size=[8,8],[5,20],[20,30]
+````
+
 ### DQN (purple), trained against random policy on a 15 x 20 board
 
 ![](res/img/expando_demo_dqn.gif)
