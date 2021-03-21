@@ -135,6 +135,7 @@ For reproducing the experiment, simply run:
 $ python -m experiments.train --multirun env.grid_size=[8,8],[15,20],[20,30]
 ````
 
+The runs took around 2.5h, 3.5h and 5h using a desktop computer with gtx 1070 gpu and a ryzen 3700x processor.  
 ### DQN (purple), trained against random policy on a 15 x 20 board
 
 ![](res/img/expando_demo_dqn.gif)
