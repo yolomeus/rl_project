@@ -132,7 +132,7 @@ Mean reward per episode for 8 x 8 (orange), 15 x 20 (blue), 20 x 30 (red)
 For reproducing the experiment, simply run:
 
 ```shell
-$ python -m experiments.train --multirun env.grid_size=[8,8],[5,20],[20,30]
+$ python -m experiments.train --multirun env.grid_size=[8,8],[15,20],[20,30]
 ````
 
 ### DQN (purple), trained against random policy on a 15 x 20 board
