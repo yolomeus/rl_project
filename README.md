@@ -48,7 +48,7 @@ for _ in range(10000):
     sleep(.01)
 ```
 
-![](expando_demo.gif)
+![](res/img/expando_demo.gif)
 We can now watch two random policies playing expando against each other. The squares with smaller squares inside
 represent cities, while the other squares are farms. Greyed out farms do not generate rewards yet.
 
@@ -98,6 +98,36 @@ integers respectively, with one integer for the direction and one for the typ of
 
 For more details see the docstring.
 
-### Bonus: DQN (purple), trained against random policy
+### Experiments
 
-![](expando_demo_dqn.gif)
+For validating whether the proposed environment is learnable by an agent, we run experiments in which we train a
+reinforcement learning agent against a random policy. We find that learning a policy that outperforms a random one is
+indeed possible.  
+Because of the continuous state space, discrete action space and also for simplicity we chose the DQN algorithm (as
+described in [Playing Atari with Deep Reinforcement Learning](https://arxiv.org/pdf/1312.5602.pdf)) for learning the
+policy, using an MLP for function approximation. We use
+the [stable-baselines3 implementation](https://stable-baselines3.readthedocs.io/en/master/modules/dqn.html) of DQN which
+features a replay buffer, a target network and uses gradient clipping.  
+For finding a reasonable learning rate and batch size we first ran a small grid search over:
+
+lr: 1e-3, 1e-4, 1e-5  
+bs: 64, 128, 512
+
+for 5 million steps each with board size of (12, 16). Then fix learning rate and batch size to 1e-5 and 128 respectively
+for the rest of the experiments. All other hyperparameters were left at their default setting which can be found in
+`gym_env/default_config` and [here](https://stable-baselines3.readthedocs.io/en/master/modules/dqn.html).  
+With these hyperparameter settings, we then train on 3 different sized boards against a random policy. We observe mean
+reward per episode, as well as room and population at the end of each episode.  
+For each, the mean episode rewards after 5 million steps of training are as follows:
+
+| Grid Size   | Mean Reward     |
+| ----------- | : ----------- : |
+| 8 x 8       | 157.9           |
+| 15 x 20     | 204.3           |
+| 20 x 30     | 210.5           |
+
+![](res/img/rollout_ep_rew_mean_grid_sweep.svg)
+
+### DQN (purple), trained against random policy on a 15 x 20 board
+
+![](res/img/expando_demo_dqn.gif)

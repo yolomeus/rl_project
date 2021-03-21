@@ -1,20 +1,26 @@
 from time import sleep
 
+from omegaconf import OmegaConf
+from stable_baselines3 import DQN
+
 from gym_env.env import Expando
 
 
 def main():
-    env = Expando(grid_size=(8, 8), max_turns=200, observe_all=True, render=True)
+    policy = DQN.load('experiments/multirun/grid_sweep/2021-03-07/14-13-11/1/ckpts/rl_model_5000000_steps.zip')
     # or load environment using a yaml default_config:
-    # env = Expando.from_config('gym_env/default_config/config.yaml')
-    obs_0, obs_1 = env.reset()
-    for _ in range(10000):
-        action_0 = env.action_space.sample()
+    cfg = OmegaConf.load('experiments/multirun/grid_sweep/2021-03-07/14-13-11/1/.hydra/config.yaml')
+    env_cfg = cfg.env
+    env_cfg.render = True
+    env = Expando(**env_cfg)
+    obs_0 = env.reset()
+    for i in range(10000):
+        action_0 = policy.predict(obs_0)[0][0]
         obs_0, reward, done, info = env.step(action_0)
-        obs_1 = info['obs_other'][0]
         env.render()
-        sleep(.01)
-        assert env.observation_space.contains(obs_0)
+        if i == 2*99:
+            while True:
+                sleep(.01)
 
 
 if __name__ == '__main__':
