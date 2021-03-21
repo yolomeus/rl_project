@@ -121,13 +121,13 @@ reward per episode, as well as room and population at the end of each episode.
 For each, the mean episode rewards after 5 million steps of training are as follows:
 
 | Grid Size   | Mean Reward     |
-| ----------- | : ----------- : |
+| ----------- | :-----------:   |
 | 8 x 8       | 157.9           |
 | 15 x 20     | 204.3           |
 | 20 x 30     | 210.5           |
 
 ![](res/img/rollout_ep_rew_mean_grid_sweep.svg)
-
+Mean reward per episode for 8 x 8 (orange), 15 x 20 (blue), 20 x 30 (red)
 ### DQN (purple), trained against random policy on a 15 x 20 board
 
 ![](res/img/expando_demo_dqn.gif)
